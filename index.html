@@ -1,6 +1,382 @@
-<html>
-  <body>
-<p>You are welcome
-</p>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Business Club.site</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #202124;
+            text-align: center;
+            overflow-x: hidden;
+        }
+        .header {
+            background-color: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .header-left h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #0A66C2;
+            animation: fadeInDown 1s ease-out;
+        }
+        .header-left p {
+            font-size: 14px;
+            margin: 0 0 0 15px;
+            color: #666;
+            animation: fadeInUp 1s ease-out 0.2s forwards;
+        }
+        .header-search {
+            flex-grow: 1;
+            margin: 0 20px;
+            position: relative;
+        }
+        .header-search input {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid #ccd0d5;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #eef3f8 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23666" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>') no-repeat 10px center;
+            background-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .header-search input:focus {
+            border-color: #0A66C2;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .header-right a {
+            text-decoration: none;
+            color: #0A66C2;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .header-right a:hover {
+            color: #004182;
+        }
+        .section {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section h2 {
+            font-size: 28px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 30px;
+            letter-spacing: 0.5px;
+            animation: fadeIn 1s ease-out;
+        }
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            justify-items: center;
+        }
+        .member {
+            background-color: #fff;
+            border: 1px solid #dadce0;
+            padding: 16px;
+            width: 240px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .member:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        }
+        .member img {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border: 2px solid #fff;
+            margin-bottom: 12px;
+            animation: fadeIn 1.2s ease-out;
+        }
+        .member p {
+            margin: 4px 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+        }
+        .member .role {
+            font-size: 14px;
+            color: #5f6368;
+            font-weight: 400;
+        }
+        .cta {
+            margin: 40px 0;
+        }
+        .cta button {
+            background-color: #0A66C2;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .cta button:hover {
+            background-color: #004182;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-size: 14px;
+            color: #5f6368;
+            border-top: 1px solid #dadce0;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <h1>Business Club</h1>
+            <p>Community</p>
+        </div>
+        <div class="header-search">
+            <input type="text" id="search-input" placeholder="Search members...">
+        </div>
+        <div class="header-right">
+            <a href="chat.html">Chat</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </div>
+
+    <!-- Directors -->
+    <div class="section" data-category="Directors">
+        <h2>Directors</h2>
+        <div class="member-grid">
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Director 1">
+                <p>RUSATIRA Shalom</p>
+                <p class="role">Director</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Director 2">
+                <p>IKUZWE CHANCE Jolie</p>
+                <p class="role">F-Director</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advisors -->
+    <div class="section" data-category="Advisors">
+        <h2>Advisors</h2>
+        <div class="member-grid">
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Advisor 1">
+                <p>TWIZEYIMANA Jean Luc</p>
+                <p class="role">Advisor</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Advisor 2">
+                <p>GATESI Answer Eudoxie</p>
+                <p class="role">F-Advisor</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- E-Manager & Secretary -->
+    <div class="section" data-category="E-Manager & Secretary">
+        <h2>E-Manager & Secretary</h2>
+        <div class="member-grid">
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="E-Manager">
+                <p>MWIZERWA KAREKEZI Bertrand</p>
+                <p class="role">E-Manager</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Secretary">
+                <p>UMUKUNDWA Nicole</p>
+                <p class="role">Secretary</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dealer & Accountants -->
+    <div class="section" data-category="Dealer & Accountants">
+        <h2>Dealer & Accountants</h2>
+        <div class="member-grid">
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Dealer">
+                <p>RUZAGIRIZA KADO Christiano</p>
+                <p class="role">Dealer</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Accountant 1">
+                <p>NTIRUSHWA Rosine</p>
+                <p class="role">Accountant</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Accountant 2">
+                <p>UMUKUNDWA Nicole</p>
+                <p class="role">SUB-Accountant</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discipliners -->
+    <div class="section" data-category="Discipliners">
+        <h2>Discipliners</h2>
+        <div class="member-grid">
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Discipliner 1">
+                <p>TUYISHIME Eric</p>
+                <p class="role">Discipliner Leader</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Discipliner 2">
+                <p>DUSHIMIRE Gaella</p>
+                <p class="role">Discipliner</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Discipliner 3">
+                <p>IRANZI Abiatal</p>
+                <p class="role">Discipliner</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Discipliner 4">
+                <p>IKAZE NKUNDA Esther</p>
+                <p class="role">Discipliner</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leader Minors -->
+    <div class="section" data-category="Leader Minors">
+        <h2>Leader Minors</h2>
+        <div class="member-grid">
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Leader Minor 1">
+                <p>KAMUGISHA KEZA Lisa</p>
+                <p class="role">Leader Minor</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Leader Minor 2">
+                <p>ABIJURU Josaphat</p>
+                <p class="role">Leader Minor</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Leader Minor 3">
+                <p>HIRWA SHEMA Kevin</p>
+                <p class="role">Leader Minor</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minors -->
+    <div class="section" data-category="Minors">
+        <h2>Minors</h2>
+        <div class="member-grid">
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Minor 1">
+                <p>Pending...</p>
+                <p class="role">Minor</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Minor 2">
+                <p>Pending...</p>
+                <p class="role">Minor</p>
+            </div>
+            <div class="member">
+                <img src="https://via.placeholder.com/160" alt="Minor 3">
+                <p>Pending...</p>
+                <p class="role">Minor</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call-to-Action -->
+    <div class="cta">
+        <a href="chat.html"><button>Join Chat</button></a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>CSMR | Business Club © 2025 | Contact us | Designed by btem.</p>
+    </div>
+
+    <!-- JavaScript for Search -->
+    <script>
+        document.getElementById('search-input').addEventListener('input', function() {
+            const searchTerm = this.value.trim().toLowerCase();
+            const sections = document.querySelectorAll('.section');
+
+            sections.forEach(section => {
+                const members = section.querySelectorAll('.member');
+                let hasVisibleMember = false;
+
+                members.forEach(member => {
+                    const name = member.querySelector('p:not(.role)').textContent.toLowerCase();
+                    const role = member.querySelector('.role').textContent.toLowerCase();
+
+                    if (name.includes(searchTerm) || role.includes(searchTerm)) {
+                        member.classList.remove('hidden');
+                        hasVisibleMember = true;
+                    } else {
+                        member.classList.add('hidden');
+                    }
+                });
+
+                // Hide section if no visible members
+                if (hasVisibleMember) {
+                    section.classList.remove('hidden');
+                } else {
+                    section.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
 </html>
