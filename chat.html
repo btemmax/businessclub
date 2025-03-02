@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Business Club Chat</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f6f8fa;
+            color: #24292e;
+            overflow: hidden;
+        }
+        #auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #ffffff;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 32px;
+            border: 1px solid #e1e4e8;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        #auth-container h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        #auth-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #d1d5da;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #fafbfc;
+            transition: border-color 0.3s ease;
+        }
+        #auth-container input:focus {
+            border-color: #0366d6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.3);
+        }
+        #auth-container button {
+            background-color: #0366d6;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+            margin-top: 16px;
+            transition: background-color 0.3s ease;
+        }
+        #auth-container button:hover {
+            background-color: #024ea4;
+        }
+        #auth-container #error-msg {
+            color: #d73a49;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+        #auth-container #loading {
+            display: none;
+            font-size: 16px;
+            color: #0366d6;
+            margin-top: 16px;
+        }
+        #auth-container #loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #0366d6;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+        #auth-container #register-link {
+            font-size: 12px;
+            color: #0366d6;
+            margin-top: 12px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        #auth-container #register-link:hover {
+            text-decoration: underline;
+        }
+        #chat-container {
+            display: none;
+            width: 100%;
+            max-width: 1080px;
+            background-color: #fff;
+            border: 1px solid #dbdbdb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            height: 80vh;
+            display: flex;
+        }
+        #sidebar {
+            width: 360px;
+            background-color: #000;
+            border-right: 1px solid #dbdbdb;
+            padding: 20px 10px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        #shorts-container {
+            height: 100%;
+            background-color: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        #shorts-list {
+            height: 100%;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+        }
+        .short-item {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .short-item iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        #chat-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        #messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #dbdbdb;
+        }
+        .message {
+            margin: 10px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message img.avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .message-content {
+            background-color: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+        .message-content img {
+            max-width: 100%;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .reply-preview {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        #input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #dbdbdb;
+            align-items: center;
+            position: relative;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #dbdbdb;
+            border-radius: 20px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        #input-area button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: color 0.3s ease;
+        }
+        #input-area button:hover {
+            color: #0095f6;
+        }
+        #send-btn { color: #0095f6; }
+        #image-btn, #emoji-btn, #reply-btn { color: #8e8e8e; }
+        #image-input { display: none; }
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        #modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+        #emoji-popup {
+            display: none;
+            position: absolute;
+            bottom: 50px;
+            right: 10px;
+            background-color: #fff;
+            border: 1px solid #d1d5da;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 100;
+        }
+        #emoji-popup span {
+            font-size: 24px;
+            margin: 5px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        #emoji-popup span:hover {
+            transform: scale(1.2);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Authentication Form -->
+    <div id="auth-container">
+        <h2>Join the Chat</h2>
+        <input type="text" id="name-input" placeholder="Your Name" required>
+        <input type="text" id="code-input" placeholder="Your Code" required>
+        <button onclick="submitAuth()">Submit</button>
+        <a href="reg.html" id="register-link">Register a new member</a>
+        <p id="error-msg" style="display: none;">Invalid name or code!</p>
+        <div id="loading">Verifying...</div>
+    </div>
+
+    <!-- Chat Room -->
+    <div id="chat-container">
+        <div id="sidebar">
+            <div id="shorts-container">
+                <div id="shorts-list"></div>
+            </div>
+        </div>
+        <div id="chat-area">
+            <div id="messages"></div>
+            <div id="input-area">
+                <input type="text" id="message-input" placeholder="Type a message...">
+                <button id="send-btn" onclick="sendMessage()">➤</button>
+                <input type="file" id="image-input" accept="image/*">
+                <button id="image-btn" onclick="document.getElementById('image-input').click()">📷</button>
+                <button id="emoji-btn" onclick="toggleEmojiPopup()">😊</button>
+                <button id="reply-btn" onclick="startReply()">↩️</button>
+                <div id="emoji-popup">
+                    <span onclick="addEmoji('😊')">😊</span>
+                    <span onclick="addEmoji('😢')">😢</span>
+                    <span onclick="addEmoji('😭')">😭</span>
+                    <span onclick="addEmoji('😂')">😂</span>
+                    <span onclick="addEmoji('🗣️')">🗣️</span>
+                    <span onclick="addEmoji('💰')">💰</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="modal" onclick="closeModal()">
+        <img id="modal-image" src="">
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, where, query, getDocs, addDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcnCKmcXcgUBHOGGEj8dizh2ybY7iQ7JI",
+            authDomain: "script-sprouts.firebaseapp.com",
+            databaseURL: "https://script-sprouts-default-rtdb.firebaseio.com",
+            projectId: "script-sprouts",
+            storageBucket: "script-sprouts.firebasestorage.app",
+            messagingSenderId: "223432338173",
+            appId: "1:223432338173:web:549ca36657ea0b38b12c94",
+            measurementId: "G-ZMCS394K9H"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        let currentUser = null;
+        let replyingTo = null;
+        const IMGBB_API_KEY = "737b0aed67d8fc8b4689da2e1d55f602";
+        const YOUTUBE_API_KEY = "AIzaSyCeKalsGacSHfM-WjuKoPgHxMdKTp-g5lk";
+
+        // Authentication
+        window.submitAuth = async function() {
+            const name = document.getElementById('name-input').value.trim();
+            const code = document.getElementById('code-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const loading = document.getElementById('loading');
+            const submitBtn = document.querySelector('#auth-container button');
+
+            if (!name || !code) {
+                errorMsg.textContent = "Please enter both name and code!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+            errorMsg.style.display = 'none';
+
+            try {
+                const q = query(collection(db, 'users'), where('name', '==', name), where('code', '==', code));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const userDoc = querySnapshot.docs[0].data();
+                    currentUser = { name, code, photoUrl: userDoc.photoUrl };
+                    enterChatRoom();
+                } else {
+                    await addDoc(collection(db, 'users'), { name, code, photoUrl: "https://via.placeholder.com/32", timestamp: new Date() });
+                    currentUser = { name, code, photoUrl: "https://via.placeholder.com/32" };
+                    enterChatRoom();
+                }
+            } catch (error) {
+                console.error("Authentication error: ", error);
+                errorMsg.textContent = "Something went wrong. Try again!";
+                errorMsg.style.display = 'block';
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        };
+
+        // Enter Chat Room
+        function enterChatRoom() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'flex';
+            loadMessages();
+            loadYouTubeShorts();
+        }
+
+        // Load Messages
+        function loadMessages() {
+            onSnapshot(query(collection(db, 'messages'), orderBy('timestamp')), (snapshot) => {
+                const messagesDiv = document.getElementById('messages');
+                let shouldScroll = messagesDiv.scrollTop + messagesDiv.clientHeight >= messagesDiv.scrollHeight;
+
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const data = change.doc.data();
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message';
+                        messageDiv.dataset.id = change.doc.id;
+
+                        let content = '';
+                        if (data.replyTo) {
+                            content += `<div class="reply-preview">${data.replyUser}: ${data.replyText}</div>`;
+                        }
+                        content += data.imageUrl 
+                            ? `<img src="${data.imageUrl}" onclick="openModal('${data.imageUrl}')">`
+                            : `<span>${data.text}</span>`;
+
+                        getDocs(query(collection(db, 'users'), where('name', '==', data.user))).then(userSnapshot => {
+                            const userPhoto = userSnapshot.docs[0]?.data().photoUrl || "https://via.placeholder.com/32";
+                            messageDiv.innerHTML = `
+                                <img class="avatar" src="${userPhoto}" alt="User">
+                                <div class="message-content">${content}</div>
+                            `;
+                        });
+
+                        messagesDiv.appendChild(messageDiv);
+                    }
+                });
+
+                if (shouldScroll) messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        }
+
+        // Load and Autoplay YouTube Shorts with Auto-Scroll
+        async function loadYouTubeShorts() {
+            const shortsList = document.getElementById('shorts-list');
+            shortsList.innerHTML = '<div>Loading Shorts...</div>';
+
+            try {
+                const response = await fetch(
+                    `https://www.googleapis.com/youtube/v3/search?part=snippet&q=funny+shorts&type=video&maxResults=10&videoDuration=short&videoEmbeddable=true&key=${YOUTUBE_API_KEY}`
+                );
+                const data = await response.json();
+
+                if (data.items && data.items.length > 0) {
+                    shortsList.innerHTML = '';
+                    data.items.forEach(item => {
+                        const videoId = item.id.videoId;
+
+                        const shortDiv = document.createElement('div');
+                        shortDiv.className = 'short-item';
+                        shortDiv.innerHTML = `
+                            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&rel=0" frameborder="0" allowfullscreen></iframe>
+                        `;
+                        shortsList.appendChild(shortDiv);
+                    });
+
+                    // Auto-scroll
+                    let currentIndex = 0;
+                    const items = shortsList.children;
+                    const itemHeight = shortsList.offsetHeight;
+                    setInterval(() => {
+                        currentIndex = (currentIndex + 1) % items.length;
+                        shortsList.scrollTo({
+                            top: currentIndex * itemHeight,
+                            behavior: 'smooth'
+                        });
+                    }, 15000); // 15 seconds per video
+                } else {
+                    shortsList.innerHTML = '<div>No embeddable Shorts found.</div>';
+                }
+            } catch (error) {
+                console.error("Error loading YouTube Shorts: ", error);
+                shortsList.innerHTML = '<div>Failed to load Shorts.</div>';
+            }
+        }
+
+        // Send Message
+        window.sendMessage = async function() {
+            const messageInput = document.getElementById('message-input');
+            const text = messageInput.value.trim();
+
+            if (!text || !currentUser) return;
+
+            try {
+                const messageData = {
+                    user: currentUser.name,
+                    text: text,
+                    timestamp: new Date()
+                };
+                if (replyingTo) {
+                    messageData.replyTo = replyingTo.id;
+                    messageData.replyUser = replyingTo.user;
+                    messageData.replyText = replyingTo.text;
+                    replyingTo = null;
+                }
+                await addDoc(collection(db, 'messages'), messageData);
+                messageInput.value = '';
+                messageInput.placeholder = "Type a message...";
+            } catch (error) {
+                console.error("Error sending message: ", error);
+                messageInput.placeholder = "Failed to send. Try again!";
+            }
+        };
+
+        // Image Upload with ImgBB
+        document.getElementById('image-input').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file || !currentUser) return;
+
+            const messageInput = document.getElementById('message-input');
+            messageInput.value = `Uploading ${file.name}...`;
+
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('key', IMGBB_API_KEY);
+
+            try {
+                const response = await fetch('https://api.imgbb.com/1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    const imageUrl = result.data.url;
+                    const messageData = {
+                        user: currentUser.name,
+                        imageUrl: imageUrl,
+                        timestamp: new Date()
+                    };
+                    if (replyingTo) {
+                        messageData.replyTo = replyingTo.id;
+                        messageData.replyUser = replyingTo.user;
+                        messageData.replyText = replyingTo.text;
+                        replyingTo = null;
+                    }
+                    await addDoc(collection(db, 'messages'), messageData);
+                    messageInput.value = '';
+                    messageInput.placeholder = "Type a message...";
+                } else {
+                    throw new Error('Image upload failed');
+                }
+            } catch (error) {
+                console.error("Error uploading image: ", error);
+                messageInput.value = '';
+                messageInput.placeholder = "Failed to upload image!";
+            }
+            e.target.value = '';
+        });
+
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        window.startReply = function() {
+            const selectedMessage = prompt("Click a message to reply to, then press Enter here.");
+            if (!selectedMessage) {
+                const messages = document.querySelectorAll('.message');
+                messages.forEach(msg => {
+                    msg.addEventListener('click', function handler(e) {
+                        replyingTo = {
+                            id: msg.dataset.id,
+                            user: msg.querySelector('strong')?.textContent.replace(':', ''),
+                            text: msg.querySelector('span')?.textContent || ''
+                        };
+                        document.getElementById('message-input').placeholder = `Replying to ${replyingTo.user}...`;
+                        messages.forEach(m => m.removeEventListener('click', handler));
+                    }, { once: true });
+                });
+            }
+        };
+
+        window.openModal = function(url) {
+            const modal = document.getElementById('modal');
+            const modalImg = document.getElementById('modal-image');
+            modalImg.src = url;
+            modal.style.display = 'flex';
+        };
+
+        window.closeModal = function() {
+            document.getElementById('modal').style.display = 'none';
+        };
+
+        window.toggleEmojiPopup = function() {
+            const popup = document.getElementById('emoji-popup');
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        };
+
+        window.addEmoji = function(emoji) {
+            const messageInput = document.getElementById('message-input');
+            messageInput.value += emoji;
+            toggleEmojiPopup();
+            messageInput.focus();
+        };
+    </script>
+</body>
+</html>
