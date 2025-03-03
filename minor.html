@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add a Minor - Business Club</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f6f8fa;
+            color: #24292e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #password-container, #minor-form-container {
+            background-color: #ffffff;
+            max-width: 400px;
+            width: 100%;
+            padding: 32px;
+            border: 1px solid #e1e4e8;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        #minor-form-container {
+            display: none;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #24292e;
+        }
+        input[type="password"], input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #d1d5da;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #fafbfc;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        input:focus {
+            border-color: #0366d6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.3);
+        }
+        button {
+            background-color: #0366d6;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+            margin-top: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #024ea4;
+        }
+        #status-msg, #password-error {
+            font-size: 14px;
+            margin-top: 12px;
+        }
+        #status-msg.success, #password-error.success {
+            color: #28a745;
+        }
+        #status-msg.error, #password-error.error {
+            color: #d73a49;
+        }
+        #loading, #password-loading {
+            display: none;
+            font-size: 16px;
+            color: #0366d6;
+            margin-top: 16px;
+        }
+        #loading::after, #password-loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #0366d6;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+        #back-btn {
+            background-color: #6a737d;
+            margin-top: 12px;
+        }
+        #back-btn:hover {
+            background-color: #5a6268;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Password Prompt -->
+    <div id="password-container">
+        <h2>Enter Password</h2>
+        <input type="password" id="password-input" placeholder="Password" required>
+        <button onclick="checkPassword()">Check</button>
+        <div id="password-error"></div>
+        <div id="password-loading">Verifying...</div>
+    </div>
+
+    <!-- Minor Form -->
+    <div id="minor-form-container">
+        <h2>Add a Minor</h2>
+        <input type="text" id="minor-name" placeholder="Name" required>
+        <input type="file" id="minor-photo" accept="image/*">
+        <input type="text" id="minor-phone" placeholder="Phone" required>
+        <input type="text" id="minor-email" placeholder="Email" required>
+        <input type="text" id="minor-location" placeholder="Location" required>
+        <button onclick="addMinor()">Add Minor</button>
+        <div id="status-msg"></div>
+        <div id="loading">Saving...</div>
+        <a href="index.html"><button id="back-btn">Back to Members</button></a>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcnCKmcXcgUBHOGGEj8dizh2ybY7iQ7JI",
+            authDomain: "script-sprouts.firebaseapp.com",
+            databaseURL: "https://script-sprouts-default-rtdb.firebaseio.com",
+            projectId: "script-sprouts",
+            storageBucket: "script-sprouts.firebasestorage.app",
+            messagingSenderId: "223432338173",
+            appId: "1:223432338173:web:549ca36657ea0b38b12c94",
+            measurementId: "G-ZMCS394K9H"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const IMGBB_API_KEY = "5f06b308b918d5a7ef3c4f418da95032";
+        const CORRECT_PASSWORD = "@mkbertrand12";
+
+        // Password Check
+        window.checkPassword = function() {
+            const password = document.getElementById('password-input').value.trim();
+            const errorMsg = document.getElementById('password-error');
+            const loading = document.getElementById('password-loading');
+            const checkBtn = document.querySelector('#password-container button');
+
+            if (!password) {
+                errorMsg.textContent = "Please enter a password!";
+                errorMsg.className = 'error';
+                return;
+            }
+
+            loading.style.display = 'block';
+            checkBtn.disabled = true;
+            errorMsg.textContent = '';
+
+            setTimeout(() => {
+                if (password === CORRECT_PASSWORD) {
+                    document.getElementById('password-container').style.display = 'none';
+                    document.getElementById('minor-form-container').style.display = 'block';
+                } else {
+                    errorMsg.textContent = "Incorrect password! Try again.";
+                    errorMsg.className = 'error';
+                }
+                loading.style.display = 'none';
+                checkBtn.disabled = false;
+            }, 1000);
+        };
+
+        // Add Minor Function
+        window.addMinor = async function() {
+            const name = document.getElementById('minor-name').value.trim();
+            const photoInput = document.getElementById('minor-photo');
+            const file = photoInput.files[0];
+            const phone = document.getElementById('minor-phone').value.trim();
+            const email = document.getElementById('minor-email').value.trim();
+            const location = document.getElementById('minor-location').value.trim();
+            const statusMsg = document.getElementById('status-msg');
+            const loading = document.getElementById('loading');
+            const addBtn = document.querySelector('#minor-form-container button:not(#back-btn)');
+
+            if (!name || !phone || !email || !location) {
+                statusMsg.textContent = "Please fill in all required fields!";
+                statusMsg.className = 'error';
+                return;
+            }
+
+            loading.style.display = 'block';
+            addBtn.disabled = true;
+            statusMsg.textContent = '';
+
+            try {
+                let photoUrl = "https://via.placeholder.com/160"; // Default if no photo
+                if (file) {
+                    statusMsg.textContent = `Uploading ${file.name}...`;
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('key', IMGBB_API_KEY);
+
+                    const response = await fetch('https://api.imgbb.com/1/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        photoUrl = result.data.url;
+                    } else {
+                        throw new Error('Image upload failed');
+                    }
+                }
+
+                await addDoc(collection(db, 'users'), {
+                    name: name,
+                    code: Math.random().toString(36).substr(2, 8), // Random code for new minor
+                    photoUrl: photoUrl,
+                    phone: phone,
+                    email: email,
+                    location: location,
+                    role: "Minor",
+                    timestamp: new Date()
+                });
+
+                statusMsg.textContent = `Minor ${name} added successfully!`;
+                statusMsg.className = 'success';
+                document.getElementById('minor-name').value = '';
+                photoInput.value = '';
+                document.getElementById('minor-phone').value = '';
+                document.getElementById('minor-email').value = '';
+                document.getElementById('minor-location').value = '';
+            } catch (error) {
+                console.error("Error adding minor: ", error);
+                statusMsg.textContent = "Failed to add minor. Try again!";
+                statusMsg.className = 'error';
+            } finally {
+                loading.style.display = 'none';
+                addBtn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
