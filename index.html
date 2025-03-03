@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="shortcut icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-<meta name="apple-mobile-web-app-title" content="MyWebSite" />
-<link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+    <link rel="manifest" href="/site.webmanifest" />
     <title>Business Club.site</title>
     <style>
         body {
@@ -21,6 +21,20 @@
             text-align: center;
             overflow-x: hidden;
         }
+        #signin-message {
+            background-color: #d73a49;
+            color: #fff;
+            font-size: 14px;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1001;
+        }
+        .signed-in #signin-message {
+            display: none;
+        }
         .header {
             background-color: #fff;
             padding: 10px 20px;
@@ -28,9 +42,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
+            position: fixed;
+            top: 34px;
+            width: 100%;
+            box-sizing: border-box;
             z-index: 1000;
+        }
+        .signed-in .header {
+            top: 0;
         }
         .header-left {
             display: flex;
@@ -74,6 +93,7 @@
             display: flex;
             align-items: center;
             gap: 20px;
+            position: relative;
         }
         .header-right a {
             text-decoration: none;
@@ -81,9 +101,75 @@
             font-size: 14px;
             font-weight: 500;
             transition: color 0.3s ease;
+            cursor: pointer;
         }
         .header-right a:hover {
             color: #004182;
+        }
+        #signin-form {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #ccd0d5;
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1001;
+            width: 250px;
+        }
+        #signin-form input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccd0d5;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        #signin-form button {
+            background-color: #0A66C2;
+            color: #fff;
+            border: none;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #signin-form button:hover {
+            background-color: #004182;
+        }
+        #signin-form #signin-error {
+            color: #d73a49;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        #signin-form #signin-loading {
+            display: none;
+            font-size: 12px;
+            color: #0A66C2;
+            margin-top: 5px;
+        }
+        #signin-form #signin-loading::after {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #0A66C2;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 5px;
+        }
+        .content-wrapper {
+            padding-top: 74px;
+        }
+        .signed-in .content-wrapper {
+            padding-top: 44px;
         }
         .section {
             padding: 40px 20px;
@@ -111,6 +197,8 @@
             width: 240px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
         }
         .member:hover {
             transform: translateY(-4px);
@@ -123,6 +211,7 @@
             border: 2px solid #fff;
             margin-bottom: 12px;
             animation: fadeIn 1.2s ease-out;
+            display: none;
         }
         .member p {
             margin: 4px 0;
@@ -134,6 +223,23 @@
             font-size: 14px;
             color: #5f6368;
             font-weight: 400;
+        }
+        .member-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #f8f9fa;
+            padding: 0 10px;
+            font-size: 14px;
+            color: #5f6368;
+            text-align: left;
+        }
+        .member.expanded .member-details {
+            max-height: 100px;
+            padding: 10px;
+        }
+        .signed-in .member img {
+            display: block;
         }
         .cta {
             margin: 40px 0;
@@ -155,6 +261,19 @@
             background-color: #004182;
             transform: translateY(-2px);
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        }
+        .add-minor {
+            margin: 20px 0;
+        }
+        .add-minor a {
+            color: #0A66C2;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .add-minor a:hover {
+            color: #004182;
         }
         .footer {
             background-color: #f8f9fa;
@@ -180,10 +299,17 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Sign-In Message -->
+    <div id="signin-message">Sign in to see profile pictures</div>
+
     <!-- Header -->
     <div class="header">
         <div class="header-left">
@@ -196,181 +322,391 @@
         <div class="header-right">
             <a href="chat.html">Chat</a>
             <a href="#contact">Contact</a>
-        </div>
-    </div>
-
-    <!-- Directors -->
-    <div class="section" data-category="Directors">
-        <h2>Directors</h2>
-        <div class="member-grid">
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Director 1">
-                <p>RUSATIRA Shalom</p>
-                <p class="role">Director</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Director 2">
-                <p>IKUZWE CHANCE Jolie</p>
-                <p class="role">F-Director</p>
+            <a id="signin-link">Sign In</a>
+            <div id="signin-form">
+                <input type="text" id="signin-name" placeholder="Name" required>
+                <input type="text" id="signin-code" placeholder="Code" required>
+                <button onclick="signIn()">Sign In</button>
+                <div id="signin-error"></div>
+                <div id="signin-loading">Verifying...</div>
             </div>
         </div>
     </div>
 
-    <!-- Advisors -->
-    <div class="section" data-category="Advisors">
-        <h2>Advisors</h2>
-        <div class="member-grid">
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Advisor 1">
-                <p>TWIZEYIMANA Jean Luc</p>
-                <p class="role">Advisor</p>
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Directors -->
+        <div class="section" data-category="Directors">
+            <h2>Directors</h2>
+            <div class="member-grid">
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Director 1">
+                    <p>RUSATIRA Shalom</p>
+                    <p class="role">Director</p>
+                    <div class="member-details">
+                        <p>shalom@example.com</p>
+                        <p>+123-456-7890</p>
+                        <p>New York, NY</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Director 2">
+                    <p>IKUZWE CHANCE Jolie</p>
+                    <p class="role">F-Director</p>
+                    <div class="member-details">
+                        <p>jolie@example.com</p>
+                        <p>+123-456-7891</p>
+                        <p>Los Angeles, CA</p>
+                    </div>
+                </div>
             </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Advisor 2">
-                <p>GATESI Answer Eudoxie</p>
-                <p class="role">F-Advisor</p>
+        </div>
+
+        <!-- Advisors -->
+        <div class="section" data-category="Advisors">
+            <h2>Advisors</h2>
+            <div class="member-grid">
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Advisor 1">
+                    <p>TWIZEYIMANA Jean Luc</p>
+                    <p class="role">Advisor</p>
+                    <div class="member-details">
+                        <p>jeanluc@example.com</p>
+                        <p>+123-456-7892</p>
+                        <p>Chicago, IL</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Advisor 2">
+                    <p>GATESI Answer Eudoxie</p>
+                    <p class="role">F-Advisor</p>
+                    <div class="member-details">
+                        <p>eudoxie@example.com</p>
+                        <p>+123-456-7893</p>
+                        <p>Miami, FL</p>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- E-Manager & Secretary -->
+        <div class="section" data-category="E-Manager & Secretary">
+            <h2>E-Manager & Secretary</h2>
+            <div class="member-grid">
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="E-Manager">
+                    <p>MWIZERWA KAREKEZI Bertrand</p>
+                    <p class="role">E-Manager</p>
+                    <div class="member-details">
+                        <p>bertrand@example.com</p>
+                        <p>+123-456-7894</p>
+                        <p>Seattle, WA</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://i.ibb.co/d0B4gCS/457365381-1710770113045110-2418729254281374609-n.jpg" alt="Secretary">
+                    <p>UMUKUNDWA Nicole</p>
+                    <p class="role">Secretary</p>
+                    <div class="member-details">
+                        <p>nicole@example.com</p>
+                        <p>+123-456-7895</p>
+                        <p>Boston, MA</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dealer & Accountants -->
+        <div class="section" data-category="Dealer & Accountants">
+            <h2>Dealer & Accountants</h2>
+            <div class="member-grid">
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Dealer">
+                    <p>RUZAGIRIZA KADO Christiano</p>
+                    <p class="role">Dealer</p>
+                    <div class="member-details">
+                        <p>christiano@example.com</p>
+                        <p>+123-456-7896</p>
+                        <p>Houston, TX</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Accountant 1">
+                    <p>NTIRUSHWA Rosine</p>
+                    <p class="role">Accountant</p>
+                    <div class="member-details">
+                        <p>rosine@example.com</p>
+                        <p>+123-456-7897</p>
+                        <p>Denver, CO</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Accountant 2">
+                    <p>KAMUGISHA KEZA Lissa</p>
+                    <p class="role">SUB-Accountant</p>
+                    <div class="member-details">
+                        <p>lissa@example.com</p>
+                        <p>+123-456-7898</p>
+                        <p>Atlanta, GA</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recruiters -->
+        <div class="section" data-category="Recruiters">
+            <h2>Recruiters</h2>
+            <div class="member-grid">
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Recruiter 1">
+                    <p>HIRWA SHEMA Kevin</p>
+                    <p class="role">Recruiter</p>
+                    <div class="member-details">
+                        <p>kevin@example.com</p>
+                        <p>+123-456-7899</p>
+                        <p>San Francisco, CA</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Recruiter 2">
+                    <p>KARANGWA IREBE Elianor</p>
+                    <p class="role">Recruiter</p>
+                    <div class="member-details">
+                        <p>elianor@example.com</p>
+                        <p>+123-456-7900</p>
+                        <p>Phoenix, AZ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Discipliners -->
+        <div class="section" data-category="Discipliners">
+            <h2>Discipliners</h2>
+            <div class="member-grid">
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Discipliner 1">
+                    <p>TUYISHIME Eric</p>
+                    <p class="role">Discipliner Leader</p>
+                    <div class="member-details">
+                        <p>eric@example.com</p>
+                        <p>+123-456-7901</p>
+                        <p>Portland, OR</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://i.ibb.co/1GQmmtm/456470584-500784105906435-7223458317319236458-n.jpg" alt="Discipliner 2">
+                    <p>DUSHIMIRE Gaella</p>
+                    <p class="role">Discipliner</p>
+                    <div class="member-details">
+                        <p>gaella@example.com</p>
+                        <p>+123-456-7902</p>
+                        <p>Austin, TX</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Discipliner 3">
+                    <p>IRANZI Abiatal</p>
+                    <p class="role">Discipliner</p>
+                    <div class="member-details">
+                        <p>abiatal@example.com</p>
+                        <p>+123-456-7903</p>
+                        <p>Raleigh, NC</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Discipliner 4">
+                    <p>IKAZE NKUNDA Esther</p>
+                    <p class="role">Discipliner</p>
+                    <div class="member-details">
+                        <p>esther@example.com</p>
+                        <p>+123-456-7904</p>
+                        <p>Minneapolis, MN</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leader Minors -->
+        <div class="section" data-category="Leader Minors">
+            <h2>Leader Minors</h2>
+            <div class="member-grid">
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Leader Minor 1">
+                    <p>ABIJURU Josaphat</p>
+                    <p class="role">Leader Minor</p>
+                    <div class="member-details">
+                        <p>josaphat@example.com</p>
+                        <p>+123-456-7905</p>
+                        <p>San Diego, CA</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Leader Minor 2">
+                    <p>KAGISHA Sabrine</p>
+                    <p class="role">Leader Minor</p>
+                    <div class="member-details">
+                        <p>sabrine@example.com</p>
+                        <p>+123-456-7906</p>
+                        <p>Dallas, TX</p>
+                    </div>
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Leader Minor 3">
+                    <p>IHIRWE Christa</p>
+                    <p class="role">Leader Minor</p>
+                    <div class="member-details">
+                        <p>christa@example.com</p>
+                        <p>+123-456-7907</p>
+                        <p>Nashville, TN</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Minors -->
+        <div class="section" data-category="Minors">
+            <h2>Minors</h2>
+            <div class="member-grid" id="minors-grid">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Call-to-Action -->
+        <div class="cta">
+            <a href="chat.html"><button>Join Chat</button></a>
+        </div>
+
+        <!-- Add Minor Link -->
+        <div class="add-minor">
+            <a href="minor.html">Add a minor</a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>CSMR | Business Club © 2025 | Contact us | Designed by btem.</p>
         </div>
     </div>
 
-    <!-- E-Manager & Secretary -->
-    <div class="section" data-category="E-Manager & Secretary">
-        <h2>E-Manager & Secretary</h2>
-        <div class="member-grid">
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="E-Manager">
-                <p>MWIZERWA KAREKEZI Bertrand</p>
-                <p class="role">E-Manager</p>
-            </div>
-            <div class="member">
-                <img src="https://i.ibb.co/d0B4gCS8/457365381-1710770113045110-2418729254281374609-n.jpg" alt="Secretary">
-                <p>UMUKUNDWA Nicole</p>
-                <p class="role">Secretary</p>
-            </div>
-        </div>
-    </div>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, where, query, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    <!-- Dealer & Accountants -->
-    <div class="section" data-category="Dealer & Accountants">
-        <h2>Dealer & Accountants</h2>
-        <div class="member-grid">
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Dealer">
-                <p>RUZAGIRIZA KADO Christiano</p>
-                <p class="role">Dealer</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Accountant 1">
-                <p>NTIRUSHWA Rosine</p>
-                <p class="role">Accountant</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Accountant 2">
-                <p>KAMUGISHA KEZA Lissa</p>
-                <p class="role">SUB-Accountant</p>
-            </div>
-        </div>
-    </div>
-      <!-- Recruiter's -->
-    <div class="section" data-category="E-Manager & Secretary">
-        <h2>Recruiters</h2>
-        <div class="member-grid">
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="E-Manager">
-                <p>HIRWA SHEMA Kevin</p>
-                <p class="role">Recruiter</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Secretary">
-                <p>KARANGWA IREBE Elianor</p>
-                <p class="role">Recruiter</p>
-            </div>
-        </div>
-    </div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcnCKmcXcgUBHOGGEj8dizh2ybY7iQ7JI",
+            authDomain: "script-sprouts.firebaseapp.com",
+            databaseURL: "https://script-sprouts-default-rtdb.firebaseio.com",
+            projectId: "script-sprouts",
+            storageBucket: "script-sprouts.firebasestorage.app",
+            messagingSenderId: "223432338173",
+            appId: "1:223432338173:web:549ca36657ea0b38b12c94",
+            measurementId: "G-ZMCS394K9H"
+        };
 
-    <!-- Discipliners -->
-    <div class="section" data-category="Discipliners">
-        <h2>Discipliners</h2>
-        <div class="member-grid">
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Discipliner 1">
-                <p>TUYISHIME Eric</p>
-                <p class="role">Discipliner Leader</p>
-            </div>
-            <div class="member">
-                <img src="https://i.ibb.co/1GQmmt6m/456470584-500784105906435-7223458317319236458-n.jpg" alt="Discipliner 2">
-                <p>DUSHIMIRE Gaella</p>
-                <p class="role">Discipliner</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Discipliner 3">
-                <p>IRANZI Abiatal</p>
-                <p class="role">Discipliner</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Discipliner 4">
-                <p>IKAZE NKUNDA Esther</p>
-                <p class="role">Discipliner</p>
-            </div>
-        </div>
-    </div>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    <!-- Leader Minors -->
-    <div class="section" data-category="Leader Minors">
-        <h2>Leader Minors</h2>
-        <div class="member-grid">
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Leader Minor 2">
-                <p>ABIJURU Josaphat</p>
-                <p class="role">Leader Minor</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Leader Minor 2">
-                <p>KAGISHA Sabrine</p>
-                <p class="role">Leader Minor</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Leader Minor 3">
-                <p>IHIRWE Christa</p>
-                <p class="role">Leader Minor</p>
-            </div>
-        </div>
-    </div>
+        // Load Minors Dynamically
+        function loadMinors() {
+            const minorsGrid = document.getElementById('minors-grid');
+            minorsGrid.innerHTML = ''; // Clear existing content
 
-    <!-- Minors -->
-    <div class="section" data-category="Minors">
-        <h2>Minors</h2>
-        <div class="member-grid">
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Minor 1">
-                <p>Pending...</p>
-                <p class="role">Minor</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Minor 2">
-                <p>Pending...</p>
-                <p class="role">Minor</p>
-            </div>
-            <div class="member">
-                <img src="https://via.placeholder.com/160" alt="Minor 3">
-                <p>Pending...</p>
-                <p class="role">Minor</p>
-            </div>
-        </div>
-    </div>
+            const q = query(collection(db, 'users'), where('role', '==', 'Minor'));
+            onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const data = change.doc.data();
+                        const memberDiv = document.createElement('div');
+                        memberDiv.className = 'member';
+                        memberDiv.innerHTML = `
+                            <img src="${data.photoUrl}" alt="${data.name}">
+                            <p>${data.name}</p>
+                            <p class="role">Minor</p>
+                            <div class="member-details">
+                                <p>${data.email}</p>
+                                <p>${data.phone}</p>
+                                <p>${data.location}</p>
+                            </div>
+                        `;
+                        memberDiv.addEventListener('click', function() {
+                            if (document.body.classList.contains('signed-in')) {
+                                this.classList.toggle('expanded');
+                            } else {
+                                const details = this.querySelector('.member-details');
+                                details.innerHTML = '<p>Sign in to see member details</p>';
+                                this.classList.add('expanded');
+                                setTimeout(() => this.classList.remove('expanded'), 2000);
+                            }
+                        });
+                        minorsGrid.appendChild(memberDiv);
+                    }
+                });
+            });
+        }
 
-    <!-- Call-to-Action -->
-    <div class="cta">
-        <a href="chat.html"><button>Join Chat</button></a>
-    </div>
+        // Check sign-in state on load
+        if (localStorage.getItem('signedIn') === 'true') {
+            document.body.classList.add('signed-in');
+            document.getElementById('signin-link').textContent = 'Sign Out';
+        }
+        loadMinors(); // Load minors on page load
 
-    <!-- Footer -->
-    <div class="footer">
-        <p>CSMR | Business Club © 2025 | Contact us | Designed by btem.</p>
-    </div>
+        // Toggle sign-in form
+        document.getElementById('signin-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (document.body.classList.contains('signed-in')) {
+                localStorage.removeItem('signedIn');
+                document.body.classList.remove('signed-in');
+                this.textContent = 'Sign In';
+                document.querySelectorAll('.member').forEach(member => member.classList.remove('expanded'));
+            } else {
+                const form = document.getElementById('signin-form');
+                form.style.display = form.style.display === 'block' ? 'none' : 'block';
+            }
+        });
 
-    <!-- JavaScript for Search -->
-    <script>
+        // Sign-in function
+        window.signIn = async function() {
+            const name = document.getElementById('signin-name').value.trim();
+            const code = document.getElementById('signin-code').value.trim();
+            const errorMsg = document.getElementById('signin-error');
+            const loading = document.getElementById('signin-loading');
+            const signinBtn = document.querySelector('#signin-form button');
+
+            if (!name || !code) {
+                errorMsg.textContent = "Please enter both name and code!";
+                return;
+            }
+
+            loading.style.display = 'block';
+            signinBtn.disabled = true;
+            errorMsg.textContent = '';
+
+            try {
+                const q = query(collection(db, 'users'), where('name', '==', name), where('code', '==', code));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    localStorage.setItem('signedIn', 'true');
+                    document.body.classList.add('signed-in');
+                    document.getElementById('signin-link').textContent = 'Sign Out';
+                    document.getElementById('signin-form').style.display = 'none';
+                    document.getElementById('signin-name').value = '';
+                    document.getElementById('signin-code').value = '';
+                } else {
+                    errorMsg.textContent = "Invalid name or code!";
+                }
+            } catch (error) {
+                console.error("Sign-in error: ", error);
+                errorMsg.textContent = "Something went wrong. Try again!";
+            } finally {
+                loading.style.display = 'none';
+                signinBtn.disabled = false;
+            }
+        };
+
+        // Search functionality
         document.getElementById('search-input').addEventListener('input', function() {
             const searchTerm = this.value.trim().toLowerCase();
             const sections = document.querySelectorAll('.section');
@@ -391,11 +727,24 @@
                     }
                 });
 
-                // Hide section if no visible members
                 if (hasVisibleMember) {
                     section.classList.remove('hidden');
                 } else {
                     section.classList.add('hidden');
+                }
+            });
+        });
+
+        // Expand member details on click (for static members)
+        document.querySelectorAll('.member:not(#minors-grid .member)').forEach(member => {
+            member.addEventListener('click', function() {
+                if (document.body.classList.contains('signed-in')) {
+                    this.classList.toggle('expanded');
+                } else {
+                    const details = this.querySelector('.member-details');
+                    details.innerHTML = '<p>Sign in to see member details</p>';
+                    this.classList.add('expanded');
+                    setTimeout(() => this.classList.remove('expanded'), 2000);
                 }
             });
         });
