@@ -34,7 +34,7 @@
             margin-bottom: 24px;
             color: #24292e;
         }
-        input[type="password"], input[type="text"], input[type="file"] {
+        input[type="password"], input[type="text"], input[type="file"], input[type="number"] {
             width: 100%;
             padding: 12px;
             margin: 8px 0;
@@ -110,14 +110,15 @@
 <body>
     <!-- Password Prompt -->
     <div id="password-container">
-        <h2>Enter Password</h2>
+        <h2>Admin Sign-In</h2>
+        <input type="text" id="admin-email" placeholder="Admin Email" required>
         <input type="password" id="password-input" placeholder="Password" required>
-        <button onclick="checkPassword()">Check</button>
+        <button onclick="checkPassword()">Sign In</button>
         <div id="password-error"></div>
         <div id="password-loading">Verifying...</div>
     </div>
 
-    <!-- Minor Form -->
+    <!-- Member Form -->
     <div id="minor-form-container">
         <h2>Add a Minor</h2>
         <input type="text" id="minor-name" placeholder="Name" required>
@@ -125,6 +126,9 @@
         <input type="text" id="minor-phone" placeholder="Phone" required>
         <input type="text" id="minor-email" placeholder="Email" required>
         <input type="text" id="minor-location" placeholder="Location" required>
+        <input type="text" id="minor-role" placeholder="Role (e.g., Assistant)" required>
+        <input type="number" id="minor-pin-position" placeholder="Pin Position (e.g., 1)" min="1" required>
+        <input type="password" id="minor-password" placeholder="Set Password" required>
         <button onclick="addMinor()">Add Minor</button>
         <div id="status-msg"></div>
         <div id="loading">Saving...</div>
@@ -135,6 +139,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAcnCKmcXcgUBHOGGEj8dizh2ybY7iQ7JI",
@@ -149,18 +154,19 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
         const IMGBB_API_KEY = "5f06b308b918d5a7ef3c4f418da95032";
-        const CORRECT_PASSWORD = "@mkbertrand12";
 
-        // Password Check
-        window.checkPassword = function() {
+        // Password Check with Firebase Authentication
+        window.checkPassword = async function() {
+            const email = document.getElementById('admin-email').value.trim();
             const password = document.getElementById('password-input').value.trim();
             const errorMsg = document.getElementById('password-error');
             const loading = document.getElementById('password-loading');
             const checkBtn = document.querySelector('#password-container button');
 
-            if (!password) {
-                errorMsg.textContent = "Please enter a password!";
+            if (!email || !password) {
+                errorMsg.textContent = "Please enter both email and password!";
                 errorMsg.className = 'error';
                 return;
             }
@@ -169,17 +175,18 @@
             checkBtn.disabled = true;
             errorMsg.textContent = '';
 
-            setTimeout(() => {
-                if (password === CORRECT_PASSWORD) {
-                    document.getElementById('password-container').style.display = 'none';
-                    document.getElementById('minor-form-container').style.display = 'block';
-                } else {
-                    errorMsg.textContent = "Incorrect password! Try again.";
-                    errorMsg.className = 'error';
-                }
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                document.getElementById('password-container').style.display = 'none';
+                document.getElementById('minor-form-container').style.display = 'block';
+            } catch (error) {
+                console.error("Sign-in error: ", error);
+                errorMsg.textContent = "Invalid email or password!";
+                errorMsg.className = 'error';
+            } finally {
                 loading.style.display = 'none';
                 checkBtn.disabled = false;
-            }, 1000);
+            }
         };
 
         // Add Minor Function
@@ -190,11 +197,14 @@
             const phone = document.getElementById('minor-phone').value.trim();
             const email = document.getElementById('minor-email').value.trim();
             const location = document.getElementById('minor-location').value.trim();
+            const role = document.getElementById('minor-role').value.trim();
+            const pinPosition = parseInt(document.getElementById('minor-pin-position').value, 10);
+            const password = document.getElementById('minor-password').value.trim();
             const statusMsg = document.getElementById('status-msg');
             const loading = document.getElementById('loading');
             const addBtn = document.querySelector('#minor-form-container button:not(#back-btn)');
 
-            if (!name || !phone || !email || !location) {
+            if (!name || !phone || !email || !location || !role || !pinPosition || !password) {
                 statusMsg.textContent = "Please fill in all required fields!";
                 statusMsg.className = 'error';
                 return;
@@ -224,24 +234,28 @@
                     }
                 }
 
-                await addDoc(collection(db, 'users'), {
+                await addDoc(collection(db, 'minors'), {
                     name: name,
-                    code: Math.random().toString(36).substr(2, 8), // Random code for new minor
                     photoUrl: photoUrl,
                     phone: phone,
                     email: email,
                     location: location,
-                    role: "Minor",
+                    role: role,
+                    pinPosition: pinPosition,
+                    code: password,
                     timestamp: new Date()
                 });
 
-                statusMsg.textContent = `Minor ${name} added successfully!`;
+                statusMsg.textContent = `${name} (${role}) added successfully!`;
                 statusMsg.className = 'success';
                 document.getElementById('minor-name').value = '';
                 photoInput.value = '';
                 document.getElementById('minor-phone').value = '';
                 document.getElementById('minor-email').value = '';
                 document.getElementById('minor-location').value = '';
+                document.getElementById('minor-role').value = '';
+                document.getElementById('minor-pin-position').value = '';
+                document.getElementById('minor-password').value = '';
             } catch (error) {
                 console.error("Error adding minor: ", error);
                 statusMsg.textContent = "Failed to add minor. Try again!";
