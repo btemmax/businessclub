@@ -146,93 +146,125 @@
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
-            border-bottom: 1px solid #dbdbdb;
+            background-color: #f6f8fa;
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Space between messages */
         }
         .message {
-            margin: 10px 0;
             display: flex;
             align-items: flex-start;
+            max-width: 80%; /* Limit message width */
+            margin: 0; /* Remove default margin */
+            transition: opacity 0.3s ease; /* Fade-in effect */
+            opacity: 0; /* Start hidden for animation */
+            animation: fadeIn 0.3s forwards; /* Apply fade-in */
+        }
+        .message.own {
+            align-self: flex-end; /* Align own messages to the right */
+            flex-direction: row-reverse; /* Avatar on the right */
         }
         .message img.avatar {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin: 0 10px; /* Consistent margin for both sides */
+            object-fit: cover; /* Ensure avatar fits nicely */
+            flex-shrink: 0; /* Prevent shrinking */
         }
         .message-content {
-            background-color: #f0f0f0;
-            padding: 10px 15px;
-            border-radius: 18px;
-            max-width: 70%;
+            background-color: #ffffff; /* White background for others' messages */
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 100%; /* Allow content to fit within max-width */
             word-wrap: break-word;
             font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+            position: relative;
+        }
+        .message.own .message-content {
+            background-color: #0366d6; /* Blue for own messages */
+            color: #ffffff; /* White text */
         }
         .message-content img {
             max-width: 100%;
             cursor: pointer;
             border-radius: 8px;
+            margin-top: 8px; /* Space above images */
         }
         .reply-preview {
-            background-color: #e0e0e0;
-            padding: 5px 10px;
-            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.05); /* Light gray for replies */
+            padding: 8px 12px;
+            border-radius: 8px;
             font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
+            color: #555;
+            margin-bottom: 8px;
+            border-left: 3px solid #0366d6; /* Blue accent for replies */
+        }
+        .message.own .reply-preview {
+            background-color: rgba(255, 255, 255, 0.2); /* Lighter for own messages */
+            color: #e0e0e0; /* Readable text on blue */
         }
         #input-area {
             display: flex;
-            padding: 10px;
-            border-top: 1px solid #dbdbdb;
             align-items: center;
-            position: relative;
+            padding: 15px 20px; /* Increased padding for breathing room */
+            background-color: #ffffff; /* White background for contrast */
+            border-top: 1px solid #e1e4e8; /* Subtle top border */
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05); /* Slight shadow for depth */
         }
         #message-input {
             flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #dbdbdb;
-            border-radius: 20px;
-            font-size: 16px;
-            margin-right: 10px;
+            padding: 12px 16px; /* More padding for comfort */
+            border: 1px solid #d1d5da; /* Light gray border */
+            border-radius: 20px; /* Rounded corners */
+            font-size: 14px;
+            background-color: #fafbfc; /* Light background */
+            outline: none; /* Remove default outline */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+            margin-right: 12px; /* Space between input and buttons */
+        }
+        #message-input:focus {
+            border-color: #0366d6; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.2); /* Subtle focus ring */
         }
         #input-area button {
             background: none;
             border: none;
-            font-size: 20px;
+            font-size: 22px; /* Slightly larger icons */
             cursor: pointer;
-            margin: 0 5px;
-            transition: color 0.3s ease;
+            padding: 8px; /* Larger clickable area */
+            border-radius: 50%; /* Circular buttons */
+            transition: background-color 0.2s ease, color 0.2s ease; /* Smooth hover effects */
+            color: #666; /* Default gray color */
         }
         #input-area button:hover {
-            color: #0095f6;
+            background-color: #f0f0f0; /* Light gray background on hover */
+            color: #0366d6; /* Blue on hover */
         }
-        #send-btn { color: #0095f6; }
-        #image-btn, #emoji-btn, #reply-btn { color: #8e8e8e; }
-        #image-input { display: none; }
-        #modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
+        #send-btn {
+            color: #0366d6; /* Blue send button by default */
+            font-size: 24px; /* Slightly larger for prominence */
         }
-        #modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 8px;
+        #send-btn:hover {
+            background-color: #e6f0fa; /* Light blue hover */
+            color: #024ea4; /* Darker blue */
+        }
+        #image-btn, #emoji-btn, #reply-btn {
+            color: #8e8e8e; /* Gray for other buttons */
+        }
+        #image-input {
+            display: none; /* Keep hidden */
         }
         #emoji-popup {
             display: none;
             position: absolute;
-            bottom: 50px;
-            right: 10px;
+            bottom: 60px; /* Adjusted to clear buttons */
+            right: 20px;
             background-color: #fff;
             border: 1px solid #d1d5da;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             padding: 10px;
             z-index: 100;
@@ -245,6 +277,26 @@
         }
         #emoji-popup span:hover {
             transform: scale(1.2);
+        }
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        #modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -321,7 +373,7 @@
         const IMGBB_API_KEY = "737b0aed67d8fc8b4689da2e1d55f602";
         const YOUTUBE_API_KEY = "AIzaSyCeKalsGacSHfM-WjuKoPgHxMdKTp-g5lk";
 
-        // Authentication
+        // Authentication (Login Only)
         window.submitAuth = async function() {
             const name = document.getElementById('name-input').value.trim();
             const code = document.getElementById('code-input').value.trim();
@@ -348,9 +400,10 @@
                     currentUser = { name, code, photoUrl: userDoc.photoUrl };
                     enterChatRoom();
                 } else {
-                    await addDoc(collection(db, 'users'), { name, code, photoUrl: "https://via.placeholder.com/32", timestamp: new Date() });
-                    currentUser = { name, code, photoUrl: "https://via.placeholder.com/32" };
-                    enterChatRoom();
+                    errorMsg.textContent = "Invalid name or code! Please try again.";
+                    errorMsg.style.display = 'block';
+                    loading.style.display = 'none';
+                    submitBtn.disabled = false;
                 }
             } catch (error) {
                 console.error("Authentication error: ", error);
@@ -381,6 +434,11 @@
                         const messageDiv = document.createElement('div');
                         messageDiv.className = 'message';
                         messageDiv.dataset.id = change.doc.id;
+
+                        // Add 'own' class if the message is from the current user
+                        if (data.user === currentUser.name) {
+                            messageDiv.classList.add('own');
+                        }
 
                         let content = '';
                         if (data.replyTo) {
@@ -440,7 +498,7 @@
                             top: currentIndex * itemHeight,
                             behavior: 'smooth'
                         });
-                    }, 15000); // 15 seconds per video
+                    }, 20000); // 15 seconds per video
                 } else {
                     shortsList.innerHTML = '<div>No embeddable Shorts found.</div>';
                 }
