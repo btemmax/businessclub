@@ -235,7 +235,7 @@
             text-align: left;
         }
         .member.expanded .member-details {
-            max-height: 100px;
+            max-height: 120px;
             padding: 10px;
         }
         .signed-in .member img {
@@ -591,7 +591,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-        import { getFirestore, collection, where, query, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        import { getFirestore, collection, where, query, getDocs, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAcnCKmcXcgUBHOGGEj8dizh2ybY7iQ7JI",
@@ -607,41 +607,56 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Load Minors Dynamically
+        // Load Minors Dynamically from 'minors' collection
         function loadMinors() {
             const minorsGrid = document.getElementById('minors-grid');
             minorsGrid.innerHTML = ''; // Clear existing content
 
-            const q = query(collection(db, 'users'), where('role', '==', 'Minor'));
+            const q = query(
+                collection(db, 'minors'), // Changed to 'minors' collection
+                orderBy('pinPosition', 'asc') // Sort by pinPosition ascending
+            );
+
             onSnapshot(q, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added') {
-                        const data = change.doc.data();
-                        const memberDiv = document.createElement('div');
-                        memberDiv.className = 'member';
-                        memberDiv.innerHTML = `
-                            <img src="${data.photoUrl}" alt="${data.name}">
-                            <p>${data.name}</p>
-                            <p class="role">Minor</p>
-                            <div class="member-details">
-                                <p>${data.email}</p>
-                                <p>${data.phone}</p>
-                                <p>${data.location}</p>
-                            </div>
-                        `;
-                        memberDiv.addEventListener('click', function() {
-                            if (document.body.classList.contains('signed-in')) {
-                                this.classList.toggle('expanded');
-                            } else {
-                                const details = this.querySelector('.member-details');
-                                details.innerHTML = '<p>Sign in to see member details</p>';
-                                this.classList.add('expanded');
-                                setTimeout(() => this.classList.remove('expanded'), 2000);
-                            }
-                        });
-                        minorsGrid.appendChild(memberDiv);
-                    }
+                minorsGrid.innerHTML = ''; // Clear before re-rendering
+                let hasMinors = false;
+
+                snapshot.forEach((doc) => {
+                    hasMinors = true;
+                    const data = doc.data();
+                    const memberDiv = document.createElement('div');
+                    memberDiv.className = 'member';
+                    memberDiv.dataset.id = doc.id;
+                    memberDiv.innerHTML = `
+                        <img src="${data.photoUrl || 'https://via.placeholder.com/160'}" alt="${data.name}">
+                        <p>${data.name}</p>
+                        <p class="role">${data.role || 'Minor'}</p>
+                        <div class="member-details">
+                            <p>${data.email || 'N/A'}</p>
+                            <p>${data.phone || 'N/A'}</p>
+                            <p>${data.location || 'N/A'}</p>
+                        </div>
+                    `;
+                    memberDiv.addEventListener('click', function() {
+                        if (document.body.classList.contains('signed-in')) {
+                            this.classList.toggle('expanded');
+                        } else {
+                            const details = this.querySelector('.member-details');
+                            details.innerHTML = '<p>Sign in to see member details</p>';
+                            this.classList.add('expanded');
+                            setTimeout(() => this.classList.remove('expanded'), 2000);
+                        }
+                    });
+                    minorsGrid.appendChild(memberDiv);
                 });
+
+                // If no minors are found, display "None"
+                if (!hasMinors) {
+                    minorsGrid.innerHTML = '<p style="font-size: 16px; color: #5f6368;">None</p>';
+                }
+            }, (error) => {
+                console.error("Error loading minors: ", error);
+                minorsGrid.innerHTML = '<p style="font-size: 16px; color: #d73a49;">Error loading minors</p>';
             });
         }
 
@@ -666,7 +681,7 @@
             }
         });
 
-        // Sign-in function
+        // Sign-in function (still uses 'users' collection for static members)
         window.signIn = async function() {
             const name = document.getElementById('signin-name').value.trim();
             const code = document.getElementById('signin-code').value.trim();
@@ -684,10 +699,16 @@
             errorMsg.textContent = '';
 
             try {
-                const q = query(collection(db, 'users'), where('name', '==', name), where('code', '==', code));
-                const querySnapshot = await getDocs(q);
+                // Check both 'users' and 'minors' collections for sign-in
+                const userQuery = query(collection(db, 'users'), where('name', '==', name), where('code', '==', code));
+                const minorQuery = query(collection(db, 'minors'), where('name', '==', name), where('code', '==', code));
+                
+                const [userSnapshot, minorSnapshot] = await Promise.all([
+                    getDocs(userQuery),
+                    getDocs(minorQuery)
+                ]);
 
-                if (!querySnapshot.empty) {
+                if (!userSnapshot.empty || !minorSnapshot.empty) {
                     localStorage.setItem('signedIn', 'true');
                     document.body.classList.add('signed-in');
                     document.getElementById('signin-link').textContent = 'Sign Out';
@@ -716,8 +737,8 @@
                 let hasVisibleMember = false;
 
                 members.forEach(member => {
-                    const name = member.querySelector('p:not(.role)').textContent.toLowerCase();
-                    const role = member.querySelector('.role').textContent.toLowerCase();
+                    const name = member.querySelector('p:not(.role)')?.textContent.toLowerCase() || '';
+                    const role = member.querySelector('.role')?.textContent.toLowerCase() || '';
 
                     if (name.includes(searchTerm) || role.includes(searchTerm)) {
                         member.classList.remove('hidden');
@@ -727,7 +748,7 @@
                     }
                 });
 
-                if (hasVisibleMember) {
+                if (hasVisibleMember || section.id === 'minors-grid' && !searchTerm) {
                     section.classList.remove('hidden');
                 } else {
                     section.classList.add('hidden');
