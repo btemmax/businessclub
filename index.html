@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Consolidated favicon declarations -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-title" content="MyWebSite">
+    <link rel="manifest" href="/site.webmanifest">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="MyWebSite" />
-    <link rel="manifest" href="/site.webmanifest" />
     <title>Business Club.site</title>
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Roboto', Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #ffffff;
@@ -212,6 +212,7 @@
             margin-bottom: 12px;
             animation: fadeIn 1.2s ease-out;
             display: none;
+            loading: lazy; /* Added lazy loading */
         }
         .member p {
             margin: 4px 0;
@@ -307,67 +308,62 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Sign-In Message -->
     <div id="signin-message">Sign in to see profile pictures</div>
 
-    <!-- Header -->
     <div class="header">
         <div class="header-left">
             <h1>Business Club</h1>
             <p>Community</p>
         </div>
         <div class="header-search">
-            <input type="text" id="search-input" placeholder="Search members...">
+            <input type="text" id="search-input" placeholder="Search members..." aria-label="Search members">
         </div>
         <div class="header-right">
             <a href="chat.html">Chat</a>
             <a href="#contact">Contact</a>
-            <a id="signin-link">Sign In</a>
-            <div id="signin-form">
-                <input type="text" id="signin-name" placeholder="Name" required>
-                <input type="text" id="signin-code" placeholder="Code" required>
-                <button onclick="signIn()">Sign In</button>
-                <div id="signin-error"></div>
-                <div id="signin-loading">Verifying...</div>
+            <a id="signin-link" role="button" aria-label="Sign in or out">Sign In</a>
+            <div id="signin-form" role="dialog" aria-label="Sign in form">
+                <input type="text" id="signin-name" placeholder="Name" required aria-label="Name">
+                <input type="text" id="signin-code" placeholder="Code" required aria-label="Code">
+                <button onclick="signIn()" aria-label="Submit sign in">Sign In</button>
+                <div id="signin-error" aria-live="polite"></div>
+                <div id="signin-loading" aria-live="polite">Verifying...</div>
             </div>
         </div>
     </div>
 
-    <!-- Content Wrapper -->
     <div class="content-wrapper">
-        <!-- Directors -->
         <div class="section" data-category="Directors">
             <h2>Directors</h2>
             <div class="member-grid">
                 <div class="member">
-                    <img src="https://via.placeholder.com/160" alt="Director">
+                    <img src="https://via.placeholder.com/160" alt="Profile picture of RUSATIRA Shalom" loading="lazy">
                     <p>RUSATIRA Shalom</p>
                     <p class="role">Director</p>
                     <div class="member-details">
                         <p>shalom@example.com</p>
                         <p>0788400795</p>
-                        <p>KGL ,Gasabo</p>
+                        <p>KGL, Gasabo</p>
                     </div>
                 </div>
                 <div class="member">
-                    <img src="https://i.ibb.co/XkLW7nY1/Screenshot-2025-03-04-123018.png" alt="Director">
+                    <img src="https://i.ibb.co/twZsWhtC/Screenshot-2025-03-04-123018.png" alt="Profile picture of IKUZWE CHANCE Jolie" loading="lazy">
                     <p>IKUZWE CHANCE Jolie</p>
                     <p class="role">F-Director</p>
                     <div class="member-details">
                         <p>chanceikuzwe65@gmail.com</p>
-                        <p>072855069</p>
+                        <p>0728550698</p>
                         <p>Kamonyi</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Advisors -->
         <div class="section" data-category="Advisors">
             <h2>Advisors</h2>
             <div class="member-grid">
                 <div class="member">
-                    <img src="https://via.placeholder.com/160" alt="Advisor 1">
+                    <img src="https://via.placeholder.com/160" alt="Profile picture of TWIZEYIMANA Jean Luc" loading="lazy">
                     <p>TWIZEYIMANA Jean Luc</p>
                     <p class="role">Advisor</p>
                     <div class="member-details">
@@ -377,78 +373,73 @@
                     </div>
                 </div>
                 <div class="member">
-                    <img src="https://via.placeholder.com/160" alt="Advisor 2">
+                    <img src="https://via.placeholder.com/160" alt="Profile picture of GATESI Answer Eudoxie" loading="lazy">
                     <p>GATESI Answer Eudoxie</p>
                     <p class="role">F-Advisor</p>
                     <div class="member-details">
                         <p>@E.U.D.O.X.I.E</p>
                         <p>0793161073</p>
-                        <p>KGL ,Gikondo</p>
+                        <p>KGL, Gikondo</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- E-Manager & Secretary -->
         <div class="section" data-category="E-Manager & Secretary">
             <h2>E-Manager & Secretary & Accountant</h2>
             <div class="member-grid">
                 <div class="member">
-                    <img src="https://via.placeholder.com/160" alt="E-Manager">
+                    <img src="https://via.placeholder.com/160" alt="Profile picture of MWIZERWA KAREKEZI Bertrand" loading="lazy">
                     <p>MWIZERWA KAREKEZI Bertrand</p>
                     <p class="role">E-Manager</p>
                     <div class="member-details">
-                        <p>mkbertrand123@gmail.com.com</p>
+                        <p>mkbertrand123@gmail.com</p>
                         <p>0722668445</p>
-                        <p>KGL ,Masaka</p>
+                        <p>KGL, Masaka</p>
                     </div>
                 </div>
                 <div class="member">
-                    <img src="https://i.ibb.co/d0B4gCS/457365381-1710770113045110-2418729254281374609-n.jpg" alt="Secretary">
+                    <img src="https://i.ibb.co/kP67FHX/457365381-1710770113045110-2418729254281374609-n.jpg" alt="Profile picture of UMUKUNDWA Nicole" loading="lazy">
                     <p>UMUKUNDWA Nicole</p>
                     <p class="role">Secretary</p>
                     <div class="member-details">
                         <p>nicoleumukundwa3@gmail.com</p>
                         <p>0791762455</p>
-                        <p>KGL ,Nyarugenge</p>
+                        <p>KGL, Nyarugenge</p>
                     </div>
-                     <div class="member">
-                    <img src="https://via.placeholder.com/160" alt="Accountant 1">
+                </div>
+                <div class="member">
+                    <img src="https://via.placeholder.com/160" alt="Profile picture of NTIRUSHWA Rosine" loading="lazy">
                     <p>NTIRUSHWA Rosine</p>
                     <p class="role">Accountant</p>
                     <div class="member-details">
-                       <p>@dolla_4k</p>
+                        <p>@dolla_4k</p>
                         <p>0793682601</p>
                         <p>Huye</p>
-                   </div>
-        </div>
-    </div>
-</div>
-        <!-- Minors -->
-        <div class="section" data-category="Minors">
-            <h2>Minors</h2>
-            <div class="member-grid" id="minors-grid">
-                <!-- Dynamically populated -->
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Call-to-Action -->
-        <div class="cta">
-            <a href="chat.html"><button>Join Chat</button></a>
+        <div class="section" data-category="Minors">
+            <h2>Minors</h2>
+            <div class="member-grid" id="minors-grid">
+            </div>
         </div>
 
-        <!-- Add Minor Link -->
+        <div class="cta">
+            <a href="chat.html"><button aria-label="Join chat">Join Chat</button></a>
+        </div>
+
         <div class="add-minor">
             <a href="minor.html">Add a minor</a>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
             <p>CSMR | Business Club © 2025 | Contact us | Designed by btem.</p>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getFirestore, collection, where, query, getDocs, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
@@ -467,18 +458,17 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Load Minors Dynamically from 'minors' collection
         function loadMinors() {
             const minorsGrid = document.getElementById('minors-grid');
-            minorsGrid.innerHTML = ''; // Clear existing content
+            minorsGrid.innerHTML = '';
 
             const q = query(
-                collection(db, 'minors'), // Changed to 'minors' collection
-                orderBy('pinPosition', 'asc') // Sort by pinPosition ascending
+                collection(db, 'minors'),
+                orderBy('pinPosition', 'asc')
             );
 
             onSnapshot(q, (snapshot) => {
-                minorsGrid.innerHTML = ''; // Clear before re-rendering
+                minorsGrid.innerHTML = '';
                 let hasMinors = false;
 
                 snapshot.forEach((doc) => {
@@ -488,7 +478,7 @@
                     memberDiv.className = 'member';
                     memberDiv.dataset.id = doc.id;
                     memberDiv.innerHTML = `
-                        <img src="${data.photoUrl || 'https://via.placeholder.com/160'}" alt="${data.name}">
+                        <img src="${data.photoUrl || 'https://via.placeholder.com/160'}" alt="Profile picture of ${data.name}" loading="lazy">
                         <p>${data.name}</p>
                         <p class="role">${data.role || 'Minor'}</p>
                         <div class="member-details">
@@ -497,20 +487,9 @@
                             <p>${data.location || 'N/A'}</p>
                         </div>
                     `;
-                    memberDiv.addEventListener('click', function() {
-                        if (document.body.classList.contains('signed-in')) {
-                            this.classList.toggle('expanded');
-                        } else {
-                            const details = this.querySelector('.member-details');
-                            details.innerHTML = '<p>Sign in to see member details</p>';
-                            this.classList.add('expanded');
-                            setTimeout(() => this.classList.remove('expanded'), 2000);
-                        }
-                    });
                     minorsGrid.appendChild(memberDiv);
                 });
 
-                // If no minors are found, display "None"
                 if (!hasMinors) {
                     minorsGrid.innerHTML = '<p style="font-size: 16px; color: #5f6368;">None</p>';
                 }
@@ -520,14 +499,12 @@
             });
         }
 
-        // Check sign-in state on load
         if (localStorage.getItem('signedIn') === 'true') {
             document.body.classList.add('signed-in');
             document.getElementById('signin-link').textContent = 'Sign Out';
         }
-        loadMinors(); // Load minors on page load
+        loadMinors();
 
-        // Toggle sign-in form
         document.getElementById('signin-link').addEventListener('click', function(e) {
             e.preventDefault();
             if (document.body.classList.contains('signed-in')) {
@@ -541,7 +518,6 @@
             }
         });
 
-        // Sign-in function (still uses 'users' collection for static members)
         window.signIn = async function() {
             const name = document.getElementById('signin-name').value.trim();
             const code = document.getElementById('signin-code').value.trim();
@@ -559,7 +535,6 @@
             errorMsg.textContent = '';
 
             try {
-                // Check both 'users' and 'minors' collections for sign-in
                 const userQuery = query(collection(db, 'users'), where('name', '==', name), where('code', '==', code));
                 const minorQuery = query(collection(db, 'minors'), where('name', '==', name), where('code', '==', code));
                 
@@ -587,7 +562,6 @@
             }
         };
 
-        // Search functionality
         document.getElementById('search-input').addEventListener('input', function() {
             const searchTerm = this.value.trim().toLowerCase();
             const sections = document.querySelectorAll('.section');
@@ -608,26 +582,29 @@
                     }
                 });
 
-                if (hasVisibleMember || section.id === 'minors-grid' && !searchTerm) {
-                    section.classList.remove('hidden');
-                } else {
-                    section.classList.add('hidden');
-                }
+                section.classList.toggle('hidden', !hasVisibleMember && !(section.id === 'minors-grid' && !searchTerm));
             });
         });
 
-        // Expand member details on click (for static members)
-        document.querySelectorAll('.member:not(#minors-grid .member)').forEach(member => {
-            member.addEventListener('click', function() {
-                if (document.body.classList.contains('signed-in')) {
-                    this.classList.toggle('expanded');
-                } else {
-                    const details = this.querySelector('.member-details');
-                    details.innerHTML = '<p>Sign in to see member details</p>';
-                    this.classList.add('expanded');
-                    setTimeout(() => this.classList.remove('expanded'), 2000);
-                }
-            });
+        document.addEventListener('click', function(e) {
+            const member = e.target.closest('.member');
+            if (!member) return;
+
+            if (document.body.classList.contains('signed-in')) {
+                member.classList.toggle('expanded');
+            } else {
+                const details = member.querySelector('.member-details');
+                details.innerHTML = '<p>Sign in to see member details</p>';
+                member.classList.add('expanded');
+                setTimeout(() => member.classList.remove('expanded'), 2000);
+            }
+        });
+
+        // Add keyboard accessibility for sign-in form
+        document.getElementById('signin-form').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signIn();
+            }
         });
     </script>
 </body>
